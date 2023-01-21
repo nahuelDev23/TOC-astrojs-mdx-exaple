@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from "preact/hooks";
 
 export function useHeadsObserver() {
-  const observer = useRef<any>(null);
+  const observer = useRef<IntersectionObserver | null>(null);
   const [activeId, setActiveId] = useState<string>("");
 
   useEffect(() => {
-    const handleObsever = (entries: any) => {
-      entries.forEach((entry: any) => {
+    const handleObsever = (entries:IntersectionObserverEntry[]) => {
+      entries.forEach((entry: IntersectionObserverEntry) => {
         if (entry?.isIntersecting) {
           setActiveId(entry.target.id);
         }
@@ -18,7 +18,7 @@ export function useHeadsObserver() {
     });
 
     const elements = document.querySelectorAll("h2, h3, h4");
-    elements.forEach((elem) => observer.current.observe(elem));
+    elements.forEach((elem:Element) => observer.current?.observe(elem));
 
     return () => observer.current?.disconnect();
   }, []);
