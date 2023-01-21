@@ -1,4 +1,5 @@
 .wrapper {
   display:grid;
-  grid-template-columns:  200px minmax(200px,1fr);
+  grid-template-columns: auto minmax(200px,1fr);
+  gap:2rem;
 }

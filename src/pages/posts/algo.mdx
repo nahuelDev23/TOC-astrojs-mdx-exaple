@@ -1,0 +1,304 @@
+---
+
+layout: ../../layouts/Layout.astro
+title: Como configurar redux toolkit en react
+date: "2022-07-01"
+cover_image: /assets/images/como-evitar-usar-switch-e-if-aninados-de-esta-manera/portada.webp
+excerpt: "No es una explicación! es un ejemplo de como integrar redux-toolkit a tu proyecto en react"
+tags:
+  - "🔥 JavaScript"
+  - "⚛️ React"
+---
+import style from '../../styles/global.css'
+
+
+<h2 id="Configuración-Redux-toolkit-en-react-v18"> Configuración Redux toolkit en react v18</h2>
+
+Estructura base con `redux-toolkit` sin `redux-thunk`
+
+```
+project
+│   README.md
+│
+└───src
+│   │
+│   │
+│   └───store
+|       |____slices
+|       |          |
+|       |          |___counter
+|       |          |
+|       |          |   index.ts
+|       |          |   counterSlice.ts
+│       │   index.ts
+│       │   store.ts
+│       │   ...
+
+
+```
+
+Primero pasemos a instalar los paquetes en nuestro proyecto.
+
+`npm install @reduxjs/toolkit react-redux`
+
+
+<h2 id="store-store">store/store.ts</h2>
+
+```tsx
+import { counterSlice } from "./slices/counter";
+
+export const store = configureStore({
+  reducer: {
+    counter: counterSlice.reducer,
+  },
+});
+
+export type RootState = ReturnType<typeof store.getState>;
+
+export type AppDispatch = typeof store.dispatch;
+```
+
+<h2 id="store-index"> store/index.ts</h2>
+
+```tsx
+export * from "./store";
+```
+
+### store/slices/counter/counterSlice.ts
+
+```tsx
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+
+export interface CounterState {
+  counter: number;
+}
+
+const initialState: CounterState = {
+  counter: 10,
+};
+
+export const counterSlice = createSlice({
+  name: "counter",
+  initialState,
+  reducers: {
+    increment: (state) => {
+      state.counter += 1;
+    },
+    decrement: (state) => {
+      state.counter = Math.max(0, (state.counter -= 1));
+    },
+    incrementByAmount: (state, action: PayloadAction<number>) => {
+      state.counter += action.payload;
+    },
+  },
+});
+
+export const { increment, decrement, incrementByAmount } = counterSlice.actions;
+```
+
+### store/slices/counter/index.ts
+
+```tsx
+export * from "./counterSlice";
+```
+
+### App.tsx
+
+```tsx
+import { useDispatch, useSelector } from "react-redux";
+
+import logo from "./logo.svg";
+import "./App.css";
+import { RootState } from "./store";
+import {
+  decrement,
+  increment,
+  incrementByAmount,
+} from "./store/slices/counter";
+
+function App() {
+  const { counter } = useSelector((state: RootState) => state.counter);
+  const dispatch = useDispatch();
+
+  return (
+    <div className="App">
+      <header className="App-header">
+        <img src={logo} className="App-logo" alt="logo" />
+        <p> {counter}</p>
+        <p>
+          <button type="button" onClick={() => dispatch(increment())}>
+            increment
+          </button>
+          <button type="button" onClick={() => dispatch(decrement())}>
+            decrement
+          </button>
+          <button type="button" onClick={() => dispatch(incrementByAmount(2))}>
+            increment by 2
+          </button>
+        </p>
+      </header>
+    </div>
+  );
+}
+
+export default App;
+```
+
+Configuración Redux toolkit en react v18 + thunk
+
+```tsx
+project
+│   README.md
+│
+└───src
+│   │
+│   │
+│   └───store
+|       |____slices
+|       |          |
+|       |          |___pokemon
+|       |          |
+|       |          |   index.ts
+|       |          |   pokemonSlice.ts
+|       |          |   thunks.ts
+│       │   index.ts
+│       │   store.ts
+│       │   ...
+
+```
+
+### store/store.ts
+
+```tsx
+import { configureStore } from "@reduxjs/toolkit";
+import { pokemonSlice } from "./slices/pokemon";
+
+export const store = configureStore({
+  reducer: {
+    pokemon: pokemonSlice.reducer,
+  },
+});
+
+export type RootState = ReturnType<typeof store.getState>;
+
+export type AppDispatch = typeof store.dispatch;
+```
+
+### store/index.ts
+
+```tsx
+export * from "./store";
+```
+
+### store/slices/pokemon/pokemonSlice.ts
+
+```tsx
+import { createSlice } from "@reduxjs/toolkit";
+
+interface PokeResponse {
+  name: string;
+  url: string;
+}
+
+export interface PokemonState {
+  page: number;
+  pokemons: PokeResponse[];
+  isLoading: boolean;
+}
+
+interface apiResponsePayload {
+  payload: {
+    page: number;
+    pokemons: PokeResponse[];
+  };
+}
+
+const initialState: PokemonState = {
+  page: 0,
+  pokemons: [],
+  isLoading: false,
+};
+
+export const pokemonSlice = createSlice({
+  name: "pokemon",
+  initialState,
+  reducers: {
+    startLoadingPokemons: (state) => {
+      state.isLoading = true;
+    },
+    setPokemons: (state, action: apiResponsePayload) => {
+      state.isLoading = false;
+      state.page = action.payload.page;
+      state.pokemons = action.payload.pokemons;
+    },
+  },
+});
+export const { startLoadingPokemons, setPokemons } = pokemonSlice.actions;
+```
+
+### store/slices/pokemon/thunks.ts
+
+```tsx
+import { Dispatch } from "@reduxjs/toolkit";
+import { setPokemons, startLoadingPokemons } from "./pokemonSlice";
+
+export const getPokemons = (page = 0) => {
+  return async (dispatch: Dispatch, getState: any) => {
+    dispatch(startLoadingPokemons());
+
+    const resp = await fetch(
+      `https://pokeapi.co/api/v2/pokemon?limit=10&offset=${page * 10}`
+    );
+    const data = await resp.json();
+
+    dispatch(
+      setPokemons({
+        pokemons: data.results,
+        page: page + 1,
+      }) as any
+    );
+  };
+};
+```
+
+### store/slices/pokemon/index.ts
+
+```tsx
+export * from "./pokemonSlice";
+export * from "./thunks";
+```
+
+### src/PokemonApp.tsx
+
+```tsx
+import { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "./store";
+import { getPokemons } from "./store/slices/pokemon";
+
+export const PokemonApp = () => {
+  const {
+    pokemons = [],
+    isLoading,
+    page,
+  } = useSelector((state: RootState) => state.pokemon);
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch<any>(getPokemons(page));
+  }, []);
+
+  if (isLoading) return <p>cargando</p>;
+  return (
+    <>
+      <div>Pokemons</div>
+      {pokemons.map((pokemon) => (
+        <div key={pokemon.name}>{pokemon.name}</div>
+      ))}
+      <button onClick={() => dispatch<any>(getPokemons(page))}>Next</button>
+    </>
+  );
+};
+```
+
