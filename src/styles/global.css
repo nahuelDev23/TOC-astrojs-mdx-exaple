@@ -1,26 +1,4 @@
-.active {
-  color: red;
-}
-.list {
-  display: flex;
-  flex-direction: column;
-  list-style: none;
-  position: fixed;
-  top: 0;
-  z-index: 100;
-  right: 16px;
-}
-.activeSub a {
-  font-weight: bold;
-  color: white;
-  background-color: purple;
-}
-
-ul {
-  text-decoration: none;
-  list-style: none;
-}
-
-a {
-  color: black;
+.wrapper {
+  display:grid;
+  grid-template-columns:  200px minmax(200px,1fr);
 }

@@ -1,6 +1,6 @@
 ---
 
-import Aside from '../components/Aside.tsx'
+import TableOfContent from '../components/TableOfContent.tsx'
 export interface Props {
 	title: string;
 }
@@ -18,32 +18,15 @@ const { frontmatter } = Astro.props;
 		<title>{frontmatter.title}</title>
 	</head>
 	<body>
-    <div class="grid">
-   <div class="todo">
-		<slot />
-  </div>   
-    <Aside title={frontmatter.titles}  subtitles={frontmatter.subtitles} client:load/>
+  <div class="wrapper">
+     <TableOfContent client:load/>
+    <div>
+		  <slot />
+     </div>   
   </div>
 	</body>
 </html>
 <style is:global>
-	:root {
-		--accent: 124, 58, 237;
-		--accent-gradient: linear-gradient(45deg, rgb(var(--accent)), #da62c4 30%, white 60%);
-	}
-	html {
-		font-family: system-ui, sans-serif;
-		background-color: #F6F6F6;
-	}
-	code {
-		font-family: Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono,
-			Bitstream Vera Sans Mono, Courier New, monospace;
-	}
-
-  .grid {
-    display:grid;
-    grid-template-columns: minmax(10px,1fr) 500px;
-  }
 
   
 </style>
