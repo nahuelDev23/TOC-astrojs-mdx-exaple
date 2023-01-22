@@ -124,3 +124,69 @@ html[data-color-theme='dark'] {
   color: var(--color-prettylights-syntax-markup-inserted-text);
   background-color: var(--color-prettylights-syntax-markup-inserted-bg);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* dif */
+/**
+We prefix all selectors with pre:not(.language-diff), to ensure we leave 
+git diffs intact. 
+But all other diffs (e.g., JavaScript, C++, etc...), will have 
+the changes applied.
+*/
+
+/* Hide the diff tokens "column" of diff files code blocks (the first 
+   character of each line). */
+pre:not(.language-diff) .token.prefix.inserted,
+pre:not(.language-diff) .token.prefix.deleted,
+pre:not(.language-diff) .token.prefix.unchanged {
+  user-select: none;
+  color: transparent;
+}
+
+/* On each line that would have had a "+" or "-" token, add that same token
+ as an absolutely positioned character to the left of the code block. */
+pre:not(.language-diff) .token.prefix.inserted::after {
+  content: "+";
+  position: absolute;
+  margin-left: -1rem;
+  user-select: none;
+  color: green;
+}
+
+pre:not(.language-diff) .token.prefix.deleted::after {
+  content: "-";
+  position: absolute;
+  margin-left: -1rem;
+  user-select: none;
+  color: red;
+}
+
+/** Adjust the margins and paddings of diff codeblocks to ensure the
+ highlighted row is not blocked by the artificial token created above. */
+pre:not(.language-diff).diff-highlight > code .token.inserted:not(.prefix),
+pre:not(.language-diff) > code.diff-highlight .token.inserted:not(.prefix) {
+  margin-right: -1rem;
+  margin-left: -1rem;
+  padding-right: 1em;
+  padding-left: 1rem;
+}
+
+pre:not(.language-diff).diff-highlight > code .token.deleted:not(.prefix),
+pre:not(.language-diff) > code.diff-highlight .token.deleted:not(.prefix) {
+  margin-right: -1rem;
+  margin-left: -1rem;
+  padding-right: 1em;
+  padding-left: 1rem;
+}
+

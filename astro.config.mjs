@@ -11,13 +11,13 @@ import preact from "@astrojs/preact";
 // https://astro.build/config
 export default defineConfig({
   markdown: {
-    syntaxHighlight: false,
-    remarkPlugins: [[remarkPrism, { plugins: ["line-numbers"] }]],
+    syntaxHighlight: false,//tiene q estar
   },
    integrations: [
       mdx({
-        remarkPlugins: [remarkReadingTime],
+      remarkPlugins: [remarkReadingTime,[remarkPrism,{plugins:["line-numbers","diff-highlight"]}]],
         extendDefaultPlugins: true,
+
       }),
      preact(),
    ],

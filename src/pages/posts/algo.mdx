@@ -1,13 +1,10 @@
 ---
-
 layout: ../../layouts/Layout.astro
 title: Como configurar redux toolkit en react
 date: "2022-07-01"
 cover_image: /assets/images/como-evitar-usar-switch-e-if-aninados-de-esta-manera/portada.webp
 excerpt: "No es una explicación! es un ejemplo de como integrar redux-toolkit a tu proyecto en react"
-tags:
-  - "🔥 JavaScript"
-  - "⚛️ React"
+tags: ["JavaScript","React"] 
 ---
 
 
@@ -43,10 +40,10 @@ Primero pasemos a instalar los paquetes en nuestro proyecto.
 
 <h2 id="store-store">store/store.ts</h2>
 
-```tsx[class="line-numbers"][data-line="4-7"]
-import { counterSlice } from "./slices/counter";
+```diff-typescript[class="line-numbers"][data-line="4-7"][class="diff-highlight"]
+-import { counterSlice } from "./slices/counter";
 
-export const store = configureStore({
++export const store = configureStore({
   reducer: {
     counter: counterSlice.reducer,
   },
