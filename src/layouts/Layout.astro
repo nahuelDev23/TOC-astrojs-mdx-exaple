@@ -1,6 +1,7 @@
 ---
 
 import TableOfContent from '../components/TableOfContent.tsx'
+import '../global.css';
 
 export interface Props {
 	title: string;
@@ -11,26 +12,45 @@ const { minutesRead } = Astro.props.frontmatter;
 ---
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-color-theme="dark">
 	<head>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{frontmatter.title}</title>
+    <link rel="stylesheet" type="" href="/css/github-theme.css">
+
+ <link
+      href="https://fonts.googleapis.com/css2?family=Cousine&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Nabla&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap"
+      rel="stylesheet"
+    />
 	</head>
 	<body>
   <div class="wrapper">
      <TableOfContent client:load/>
-    <div>
+    <div class="overflow-h">
 
 <h1>{minutesRead}</h1>
 		  <slot />
      </div>   
   </div>
+
+ <script src="/scripts/addLineHighlight.js" defer></script>
+    <script src="/scripts/addCopyButton.js" defer></script>
 	</body>
 </html>
 <style is:global>
-
+.overflow-h{
+  overflow:hidden;
+}
   
 </style>

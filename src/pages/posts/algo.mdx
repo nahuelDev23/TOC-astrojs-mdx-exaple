@@ -9,14 +9,13 @@ tags:
   - "🔥 JavaScript"
   - "⚛️ React"
 ---
-import style from '../../styles/global.css'
 
 
 <h2 id="Configuración-Redux-toolkit-en-react-v18"> Configuración Redux toolkit en react v18</h2>
 
 Estructura base con `redux-toolkit` sin `redux-thunk`
 
-```
+```bash[class="line-numbers"]
 project
 │   README.md
 │
@@ -44,7 +43,7 @@ Primero pasemos a instalar los paquetes en nuestro proyecto.
 
 <h2 id="store-store">store/store.ts</h2>
 
-```tsx
+```tsx[class="line-numbers"][data-line="4-7"]
 import { counterSlice } from "./slices/counter";
 
 export const store = configureStore({

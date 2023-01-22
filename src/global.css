@@ -1,0 +1,151 @@
+.wrapper {
+  display:grid;
+  grid-template-columns: auto minmax(200px,1fr);
+  gap:2rem;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  color: var(--color-fg-default);
+  transition-duration: 0.2s;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  padding: 2em;
+  max-width: 840px;
+  margin-inline: auto;
+  background-color: var(--color-canvas-default);
+}
+
+@font-palette-values --dark {
+  font-family: Nabla;
+  base-palette: 0;
+}
+
+@font-palette-values --light {
+  font-family: Nabla;
+  base-palette: 1;
+}
+
+h1,
+h2 {
+  font-family: 'Nabla';
+  font-palette: var(--palette);
+}
+
+h1 {
+  font-size: 3rem;
+}
+
+h2 {
+  font-size: 2rem;
+}
+
+hr {
+  margin-block-start: 2em;
+  border-color: var(--color-canvas-subtle);
+}
+
+div.remark-highlight {
+  position: relative;
+}
+
+pre {
+  padding: 2em;
+  background-color: var(--color-canvas-subtle);
+  border-color: var(--color-border-default);
+  border-radius: 8px;
+  line-height: 1.5;
+  overflow-x: auto;
+  font-size: 0.9rem;
+}
+
+pre,
+pre * {
+  font-family: 'Cousine';
+}
+
+/* Adapted from prismjs/plugins/line-numbers/prism-line-numbers.css */
+pre[class*='language-'].line-numbers {
+  padding-left: calc(2em + 3ch + 0.8em);
+  counter-reset: linenumber;
+}
+
+pre[class*='language-'].line-numbers > code {
+  white-space: inherit;
+}
+
+.line-numbers .line-numbers-rows {
+  position: absolute;
+  pointer-events: none;
+  top: 0;
+  font-size: 100%;
+  left: 0;
+  top: 2em;
+  text-align: end;
+  background-color: var(--color-canvas-subtle);
+
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.line-numbers-rows > span {
+  display: block;
+  counter-increment: linenumber;
+}
+
+.line-numbers-rows > span:before {
+  content: counter(linenumber);
+  color: #999;
+  display: block;
+  padding-left: 2em;
+  padding-right: 0.8em;
+  text-align: right;
+}
+
+.line-numbers span.line-numbers-rows > span {
+  position: relative;
+}
+
+.line-numbers span.line-numbers-rows > span::after {
+  content: ' ';
+  background: var(--color-border-default);
+  opacity: 0.3;
+  mix-blend-mode: var(--mix-blend-mode);
+  width: var(--highlight-width, 0);
+  position: absolute;
+  top: 0;
+  left: calc(-2em + 24px);
+}
+
+div.remark-highlight > button {
+  font-family: 'Cousine', monospace;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  border: none;
+  color: var(--color-fg-muted);
+  background-color: var(--color-canvas-subtle);
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 8px 12px 7px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+div.remark-highlight > button > svg > path {
+  fill: var(--color-fg-muted);
+}
+
+div.remark-highlight > button:hover {
+  background-color: var(--color-border-muted);
+}
