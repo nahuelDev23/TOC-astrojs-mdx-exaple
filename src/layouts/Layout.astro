@@ -2,13 +2,29 @@
 
 import TableOfContent from '../components/TableOfContent.tsx'
 import '../global.css';
-
+import {Search} from '../components/Search.tsx'
 export interface Props {
 	title: string;
 }
 
 const { frontmatter } = Astro.props;
 const { minutesRead } = Astro.props.frontmatter;
+
+const allArticles =
+    (await Astro.glob<Article>('../pages/posts/*.mdx'))
+    .map((article) => ({
+        ...article.frontmatter,
+        url: article.url,
+        dates: { published: new Date(article.frontmatter.dates.published as unknown as string) } 
+    }));
+
+const articlesInSearchForm = allArticles
+    .map<SearchDefinition>((article) => ({
+        primary: article.title,
+        secondary: article.description,
+        tertiary:article.categories,
+        url: article.url
+    }));
 ---
 
 <!DOCTYPE html>
@@ -35,18 +51,21 @@ const { minutesRead } = Astro.props.frontmatter;
     />
 	</head>
 	<body>
-  <div class="wrapper">
+  <div class="wrapper joder">
 
      <TableOfContent client:load/>
     <div class="overflow-h">
 
 <h1>{minutesRead}</h1>
+        <Search
+    client:idle
+    list={ articlesInSearchForm } />
 		  <slot />
      </div>   
   </div>
 
- <script src="/scripts/addLineHighlight.js" defer></script>
-    <script src="/scripts/addCopyButton.js" defer></script>
+  <script src="/scripts/addLineHighlight.js" defer></script>
+  <script src="/scripts/addCopyButton.js" defer></script>
 	</body>
 </html>
 <style is:global>

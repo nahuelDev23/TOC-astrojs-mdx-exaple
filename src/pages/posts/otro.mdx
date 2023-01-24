@@ -1,0 +1,110 @@
+---
+layout: ../../layouts/Layout.astro
+title: de estupid a solid
+dates: "2022-07-01"
+cover_image: /assets/images/como-evitar-usar-switch-e-if-aninados-de-esta-manera/portada.webp
+description: config en debian
+categories: ["neovim"] 
+url: /otro
+---
+
+
+# De STUPID a SOLID
+
+STUPID es un acrónimo basada en _code smells_ que describen como **NO** debe ser software que escribimos.
+
+- **S**INGLETON: patrón singleton.
+- **T**IGHT COUPLING: alto acoplamiento.
+- **U**NTESTABILITY: código no testeable.
+- **P**REMATURE OPTIMIZATION: Optimizaciones prematuras.
+- **I**NDESCRIPTIVE NAMING: nombres poco descriptivos.
+- **D**UPLICATION: código duplicado.
+
+## El patrón singleton
+
+La intención de este patrón es tratar de garantizar que una clase tenga una única instancia y proporcionar un acceso global a ella.
+
+Suele implementar creando en la clase una variable estática que almacena una instancia de si misma, dicha variable se inicializa por primera vez en el constructor o en un named constructor.
+
+```js
+class Singleton {
+  constructor() {
+    if (Singleton.instance) {
+      return Singleton.instance;
+    }
+
+    this.title = "my singleton";
+    Singleton.instance = this;
+  }
+}
+
+let mySingleton = new Singleton();
+let mySingleton2 = new Singleton();
+
+console.log("Singleton 1: ", mySingleton.title);
+mySingleton.title = "modified in instance 1";
+console.log("Singleton 2: ", mySingleton2.title);
+```
+
+Una de las razones por las cual se considera una mala práctica es porque generalmente expone a la instancia al contexto global de la aplicación, pudieron ser modificado en cualquier momento, perdiendo así el control del mismo.
+
+Otra de las razones es que hacer _unit test_ con ellas es muy difícil, ya que cada test debe ser totalmente independiente al anterior y esto no se cumple. Por lo que , al mantener el estado , la aplicación se hace difícil de testear.
+
+## Alto acoplamiento
+
+Un alto acoplamiento entre clases dificulta la mantenibilidad y tolerancia al cambio, lo idea es tener un acoplamiento bajo buena cohesión.
+
+## Acoplamiento y cohesión
+
+La cohesión hace referencia a la relacion entre modulos de un sistema. En terminos de una clase, podemos decir que hay una buena cohesión si sus métodos están estrechamente relacionados entre si.
+
+Un codigo con una alta cohesión suele ser mas _self contained_ , es decir contiene todas las piezas que necesita, por lo tanto suele se mas fácil de entender.No obstante , si aumentamos demasiado la cohesión podriamos tender a crear modulos con multiples responsabilidaes.
+
+El acoplamiento en cambio hace referencia en la relacion que guardan entre si los modulos de un sistema y su dependencia entre ellos.
+
+Si tenemos muchas relaciones entre dichos modulos, con muchas dependecias unos de otros, tendremos un grado de acoplamiento alto.
+
+En cambio si los modulos son independientes unos de otros el acoplamiento sera bajo.
+
+## Código no testeable
+
+La mayoria de las veces el codigo no testeable o dificilmente testeable es causado por un alto acoplamiento y/o cuando no se inyectan dependencias.
+
+## Optimizaciones prematuras
+
+> "Cuando lleguemos a ese rio cruzaremos ese puente"
+
+No debemos anticiparnos a los requisitos y desarrollar abstracciones innecesarias que puedan añadir complejidad accidental.
+
+## Complejidad esencial y complejidad accidental
+
+El antipatron de diseño diseño accidental _complexity_ o complejidad accidental , se da cuando en el desarrollo se implementa una solucion de una complejidad mayor a la minima indispensable.
+
+Lo ideal seria que la complejidad sea equivalente al problema, esta complejidad es conocida como _complejidad escencial_ .
+
+Lo que suele ocurrir es que terminamos introduciendo complejidad accidental, lo que hace que el proyecto se vuelva dificil de mantener y poco tolerante al cambio.
+
+> Si quieres seguir profundizando en estas ideas, te recomiendo el artículo No hay balas de plata — Esencia y accidentes de la ingeniería del software⁵³ (Título en inglés: No Silver Bullet — Essence and Accidents of Software Engineering). Su autor y ganador del premio Alan Turing, Fred Brooks, dividió las propiedades del software en esenciales y accidentales basándose en la descomposición que hizo Aristóteles del conocimiento.
+
+## Nombres pocos descriptivos
+
+El siguiente principio STUPID es el de _Indescriptive Naming_ o nombres poco descriptivos.
+
+Básicamente lo que nos dice es que los nombres de variables , métodos y clases deben seleccionarse con cuidado para que den expresividad y significado a nuestro código.
+
+## Duplicidad de código
+
+El último principio STUPID viene a hacernos referencia al principio DRY (don’t
+repeat yourself).
+
+Básicamente venía a decirnos que, por norma general, debemos evitar el código duplicado, aunque existen excepciones.
+
+## Duplicidad real
+
+El código en la duplicidad real, además de ser idéntico, cumple la misma función.
+Por lo tanto, si hacemos un cambio, debemos propagarlo de forma manual a todos
+las partes de nuestro proyecto donde se encuentre dicho código, además, debemos cambiarlo de la misma manera, lo que incrementa las probabilidades de que se produzca un error humano. Este es el tipo de código duplicado que debemos evitar y que tendríamos que unificar.
+
+## Duplicidad accidental
+
+Al contrario que en la duplicidad real, la duplicidad accidental es aquella en la que el código puede parecer el mismo, pero en realidad cumple funciones distintas. En este caso el código tiene un motivo para cambiar, ya que si tenemos que introducir un cambio es probable que solo sea necesario modificar alguno de los sitios donde esté dicho código. Este es el tipo de código que debemos evitar y que tendríamos que unificar.
