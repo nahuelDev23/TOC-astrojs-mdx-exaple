@@ -1,0 +1,240 @@
+---
+layout: ../../layouts/Layout.astro
+title: useMemo vs useCallback vs memo
+dates: "2022-07-01"
+description: Cuando aplicar cada una de ellas , useMemo vs useCallback vs memo
+categories: ["react"] 
+url: /useMemo-vs-useCallback-vs-memo
+---
+
+
+## useCallback vs useMemo vs memo
+
+useCallback vs useMemo vs memo en react se utilizan para optimizar nuestras aplicaciones haciendo uso de la **memorización** , evitando que nuestros componentes hagan renderizados de mas.
+
+Es importante no abusar de ellas, siendo solo recomendable utilizarlas cuando su impacto sea menor al problema que están resolviendo.
+
+A esta altura puede que te preguntes **Que hace la memorización?**
+
+Memorizar significa recordar un valor ya calculado para evitar seguir repitiendo el proceso anterior que nos dio el resultado en un primer momento, Por ejemplo supongamos que tenemos una función que nos calcula el valor de 2+2 apenas se monta nuestro componente, nosotros ya sabemos que si ninguno de esos 2 cambia el resultado siempre sera el mismo , 4 , pero cada vez que se haga algún **set** (o cualquier otro proceso que dispare un render) , el componente se volverá a renderizar y la suma 2+2 se volverá a disparar.
+
+Este ejemplo es un poco forzado ya que que en cada render se calcule 2+2 no hará que nuestra app pierda rendimiento, por eso **no hay que abusar de la memorización**, ya que aplicar estas "optimizaciones" puede hacer que la solución nos de peores resultados que el problema inicial.
+
+Antes de continuar tenemos que tener en cuenta que en Javascript cuando comparamos cualquier tipo de dato que no sea primitivo, estos no serán idénticos entre si, aunque sean totalmente iguales.
+
+```js[class="line-numbers"]
+const a = () => {};
+const b = () => {};
+
+a === b; // false
+
+const a = [];
+const b = [];
+
+a === b; // false
+```
+
+Es por este comportamiento que cada vez que se hace un re render en react las funciones se vuelven a disparar, porque son considerados un nuevo objeto y en consecuencia se vuelven a crear , por mas de se mantengan idénticos en el ciclo de vida del componente y aunque continúen haciendo lo mismo.
+
+Podemos comprobarlo con el siguiente código.
+
+```js[class="line-numbers"]
+
+import { useCallback, useEffect, useState } from "react";
+
+export default function App() {
+  const [count, setCount] = useState(0);
+
+  const saludar = () => {
+    console.log("hola otra vez");
+  };
+
+  useEffect(() => {
+    saludar();
+  }, [saludar]);
+
+  return (
+    <div>
+      <h1>{count}</h1>
+      <button onClick={() => setCount((prev) => prev + 1)}>
+        suma y dispara re render
+      </button>
+    </div>
+  );
+}
+```
+
+En ese caso con solo **useCallback** en la función **saludar** , logramos memorizarlo y así evitamos que se vuelva a crear un nuevo objeto en cada re render
+
+```diff-typescript[class="line-numbers"][data-line="6-8"]
+
+import { useCallback, useEffect, useState } from "react";
+
+export default function App() {
+  const [count, setCount] = useState(0);
+
+ const saludar = useCallback(() => {
+  console.log("hola otra vez");
+}, []);
+
+  useEffect(() => {
+    saludar();
+  }, [saludar]);
+
+  return (
+    <div>
+      <h1>{count}</h1>
+      <button onClick={() => setCount((prev) => prev + 1)}>
+        suma y dispara re render
+      </button>
+    </div>
+  );
+}
+```
+
+
+## Principales diferencias entre useCallback, useMemo y memo
+
+- useCallback - memoriza funciones - es un hook
+- useMemo - memoriza valores - es un hook
+- memo - memoriza componentes, es un HOC (high order component)
+
+
+
+## useCallback memoriza funciones
+
+Como dijimos **useCallback** es un hook que se encarga de memorizar funciones y de que estas no se re renderizen al montarse los componentes.
+
+Es particularmente util cuando se transfieren esas funciones a componentes hijos.
+
+Supongamos que tenemos el mismo escenario el componente padre tiene una función, esta función se la pasamos el hijo y el hijo por algún motivo esta usando esta función como array de dependencia de un **useEffect** , cada vez que la función en el padre se vuelva a crear, el useEffect del hijo se vuelve a disparar!, y cual es el problema te estarás preguntando. Bueno imagina que dentro de ese useEffect en el hijo se esta haciendo una llamada a un **endpoint** , nosotros no queremos mandar peticiones innecesarias, pero mucha charla , veamos el código.
+
+```js[class="line-numbers"]
+const ParentComponent = () => {
+  const [count, setCount] = useState(0);
+
+  const increment = () => {
+    setCount((prevCounter) => prevCounter + 1);
+  };
+
+  return <ChildrenComponent count={count} increment={increment} />;
+};
+```
+
+```js[class="line-numbers"]
+const ChildrenComponent = ({ count, increment }) => {
+  useEffect(() => {
+    fetch("unaApiQueNosCuestaDineroPorPeticion.com/api/v1");
+  }, [increment]);
+
+  return (
+    <>
+      <div>{count}</div>
+      <button onClick={increment}>+</button>
+    </>
+  );
+};
+
+```
+
+Para solucionarlo en **ParentComponent**
+
+```diff[class="line-numbers"][class="diff-highlight"]
+
+
+
+const ParentComponent = () => {
+  const [count, setCount] = useState(0);
+
+- const increment = () => {
+- setCount((prevCounter) => prevCounter + 1);
+- };
+
++ const increment = useCallback(() => {
++ setCount((prevCounter) => prevCounter + 1);
++ }, []);
+
+return <ChildrenComponent count={count} increment={increment} />;
+};
+
+```
+
+Como observamos **useCallback** recibe dos argumentos, el primero es la función a memorizar y el segundo es el **array de dependencias**, osea variables a vigilar, por lo cual si estas variables que están siendo observadas no cambian, react no volverá a crear la función.
+
+## useMemo memoriza valores
+
+useMemo sirve para memorizar el valor que devuelve una función, useMemo **toma dos argumentos y retorna un valor** . Como pasa en useCallback el primer argumento es la función y el segundo es el array de dependencias , el cual puede estar vacio para que solo se ejecute la primera vez que se monta el componente.
+
+useMemo es bueno para funciones que retornan un valor tras una operacion costosa de calcular.
+
+```jsx[class="line-numbers"]
+const Component = ({ value }) => {
+  const memorizedValue = useMemo(() => getExpensiveValue(value), [value]);
+
+  return <div>the value is {memorizedVAlue}</div>;
+};
+```
+
+Mientras **value** no cambie , el valor tampoco lo hará.
+
+## memo, memoriza componentes
+
+memo es un HOC, por lo que **toma un componente como parámetro y retorna uno nuevo**. Memo revisa si las propiedades del componente cambiaron, si no lo hacen devuelve el mismo componente sin volverlo a renderizar.
+
+```jsx[class="line-numbers"]
+const Component = memo(({ value }) => {
+  return <div>{value}</div>;
+});
+
+// o tambien
+
+const Component = ({ value }) => {
+  return <div>{value}</div>;
+};
+
+export default memo(Component);
+```
+
+Para que casos esta pensado **memo**?
+
+- Componentes que se están re renderizando muchas veces y que siempre reciben las mismas propiedades.
+- Componentes en los que sus propiedades cambian con poca frecuencia o no cambian nunca.
+- Componentes muy grandes que generan un impacto en el rendimiento de la aplicación
+
+## useCallback + memo para evitar re renders
+
+Podemos combinar estas dos características para evitar el re render de nuestros componentes.
+
+Supongamos que el componente padre tiene una función , y esta función se la pasamos al componente hijo, a su vez el componente padre tiene otra función mas la cual aumenta el valor de un numero, cada vez que ese numero se incremente se volverá a re renderizar el componente hijo, para evitarlo combinaremos **memo** + **useCallback** .
+
+```jsx[class="line-numbers"]
+const ChildrenComponent = memo(({ callback }) => {
+  console.log("no me re renderizo");
+
+  return (
+    <>
+      <div>{callback()}</div>
+    </>
+  );
+});
+
+export default function App() {
+  const [count, setCount] = useState(0);
+
+  const callback = () => {
+    return "hola";
+  };
+
+  const memorizedCallback = useCallback(callback, []);
+
+  return (
+    <>
+      {count}
+      <button onClick={() => setCount((prev) => prev + 1)}>+</button>
+      <ChildrenComponent callback={memorizedCallback} />
+    </>
+  );
+}
+```
+
+La explico seria, **childrenComponent** recibe como parámetro una función, pero al usar memo , este componente no se vuelve a pintar al menos que la propiedad cambie. A su vez en el componente padre, la función que se pasa por el hijo esta envuelta en **useCallback** por lo que la función no se vuelve a crear al menos que una de sus dependencias cambien, como este array de dependencias esta vació solo se vuelve a crear la función si refrescamos la app y no cuando se dispare algún otro evento, como puede ser el evento click. Entonces así es como solucionamos el re render con esas dos herramientas, si quitas cualquiera de los dos elementos tanto **useCallback** o **memo** podrás observar que el componente se sigue creando una y otra vez.
