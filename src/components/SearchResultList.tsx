@@ -1,10 +1,9 @@
 import type { SearchDefinition } from "../interfaces/SearchDefinition";
 
-export const SearchResultList = ({
-  results,
-}: {
+interface Props {
   readonly results: readonly SearchDefinition[];
-}) => (
+}
+export const SearchResultList = ({ results }: Props) => (
   <ul>
     {results.map((result) => (
       <li key={result.primary}>

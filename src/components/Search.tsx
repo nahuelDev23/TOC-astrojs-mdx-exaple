@@ -5,11 +5,10 @@ import type { SearchDefinition } from "../interfaces/SearchDefinition";
 import { SearchResultCount } from "./SearchResultCount";
 import { SearchResultList } from "./SearchResultList";
 
-export const Search = ({
-  list,
-}: {
+interface Props {
   readonly list: readonly SearchDefinition[];
-}) => {
+}
+export const Search = ({ list }: Props) => {
   const [collection] = useState<readonly SearchDefinition[]>(list);
   const options: Fuse.IFuseOptions<SearchDefinition> = {
     keys: ["primary", "secondary", "tertiary"],
